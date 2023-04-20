@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import styles from '@/styles/Barchart.module.css'
+import styles from '@/styles/BarChart.module.css'
 import { BarChart, Bar, Line, ReferenceLine, XAxis, YAxis, Tooltip } from 'recharts';
 
 const data = [
