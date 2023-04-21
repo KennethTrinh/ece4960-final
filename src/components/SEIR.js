@@ -6,7 +6,7 @@ const SEIR = () => {
     const [inState, setState] = useState({
         Time_to_death: 32,
         logN: Math.log(7e6),
-        N:7e6,
+        N: Math.exp(Math.log(7e6)),
         I0: 1,
         R0: 2.2,
         D_incbation: 5.2,
@@ -62,7 +62,7 @@ const SEIR = () => {
   return (
     <div>
         <BarChart
-            y = {solState["P"].slice(0,100)} 
+            y = {solState["P"]}//.slice(0,100)} 
             xmax = {inState.Xmax} 
             total_infected = {solState["total_infected"].slice(0,100)} 
             deaths = {solState['deaths']} 
