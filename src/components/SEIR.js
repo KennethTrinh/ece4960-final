@@ -6,7 +6,7 @@ const SEIR = () => {
     const [inState, setState] = useState({
         Time_to_death: 32,
         logN: Math.log(7e6),
-        N: Math.exp(Math.log(7e6)),
+        N:7e6,
         I0: 1,
         R0: 2.2,
         D_incbation: 5.2,
@@ -26,32 +26,24 @@ const SEIR = () => {
         duration: 7 * 12 * 1e10,
         checked: [true, true, false, true, true],
     });
-    const [outState, setOutState] = useState({
-        
-        Sol: get_solution(inState.dt, inState.N, inState.I0, inState.R0,
-                          inState.D_incbation, inState.D_infectious, 
-                          inState.D_recovery_mild, inState.D_hospital_lag,
-                          inState.D_recovery_severe, inState.D_death,
-                          inState.P_SEVERE, inState.CFR, inState.InterventionTime,
-                          inState.InterventionAmt,inState.duration
-        ),
-        timestep: inState.dt,
-        tmax: inState.dt * 100,
-    });
+    const [solState, setSolState] = useState(get_solution(inState.dt, inState.N, inState.I0, inState.R0,
+        inState.D_incbation, inState.D_infectious, 
+        inState.D_recovery_mild, inState.D_hospital_lag,
+        inState.D_recovery_severe, inState.D_death,
+        inState.P_SEVERE, inState.CFR, inState.InterventionTime,
+        inState.InterventionAmt,inState.duration)
+    );
+
 
     useEffect(() => {
-        setOutState({
-            Sol: get_solution(inState.dt, inState.N, inState.I0, inState.R0,
-                inState.D_incbation, inState.D_infectious, 
-                inState.D_recovery_mild, inState.D_hospital_lag,
-                inState.D_recovery_severe, inState.D_death,
-                inState.P_SEVERE, inState.CFR, inState.InterventionTime,
-                inState.InterventionAmt,inState.duration
-            ),
-            timestep: inState.dt,
-            tmax: inState.dt * 100,
-        })
-    }, [...Object.values(inState)])
+        setSolState(get_solution(inState.dt, inState.N, inState.I0, inState.R0,
+            inState.D_incbation, inState.D_infectious, 
+            inState.D_recovery_mild, inState.D_hospital_lag,
+            inState.D_recovery_severe, inState.D_death,
+            inState.P_SEVERE, inState.CFR, inState.InterventionTime,
+            inState.InterventionAmt,inState.duration)
+        );
+    }, [inState.dt, inState.N, inState.I0, inState.R0])
 
     // $: Sol            = get_solution(dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital_lag, D_recovery_severe, D_death, P_SEVERE, CFR, InterventionTime, InterventionAmt, duration)
     // $: P              = Sol["P"].slice(0,100)
@@ -70,18 +62,29 @@ const SEIR = () => {
   return (
     <div>
         <BarChart
-            y = {outState.Sol["P"].slice(0,100)} 
+            y = {solState["P"].slice(0,100)} 
             xmax = {inState.Xmax} 
-            total_infected = {outState.Sol["total_infected"].slice(0,100)} 
-            deaths = {outState.Sol['deaths']} 
-            total = {outState.Sol['total']}
-            timestep={outState.timestep}
-            tmax={outState.tmax}
+            total_infected = {solState["total_infected"].slice(0,100)} 
+            deaths = {solState['deaths']} 
+            total = {solState['total']}
+            timestep={inState.dt}
+            tmax={inState.dt * 100}
             N={inState.N}
             // ymax={lock ? Plock: Pmax}
             InterventionTime={inState.InterventionTime}
             colors={[ "#386cb0", "#8da0cb", "#4daf4a", "#f0027f", "#fdc086"]}
+            checked={inState.checked}
             />
+    <label htmlFor="N">Population size (N):</label>
+        <input
+          type="range"
+          min={5}
+          max={25}
+          id="N"
+          name="N"
+          value={Math.log(inState.N)}
+          onChange={(e) => {setState( (prev) => ({...prev, N: parseInt(Math.exp(e.target.value))})); console.log(inState.N)}}
+    />
     </div>
   )
 }
