@@ -25,6 +25,7 @@ const SEIR = () => {
         P_SEVERE: 0.2,
         duration: 7 * 12 * 1e10,
         checked: [true, true, false, true, true],
+        log : false,
     });
     const [solState, setSolState] = useState(get_solution(inState.dt, inState.N, inState.I0, inState.R0,
         inState.D_incbation, inState.D_infectious, 
@@ -62,7 +63,7 @@ const SEIR = () => {
   return (
     <div>
         <BarChart
-            y = {solState["P"]}//.slice(0,100)} 
+            y = {solState["P"].slice(0,100)} 
             xmax = {inState.Xmax} 
             total_infected = {solState["total_infected"].slice(0,100)} 
             deaths = {solState['deaths']} 
@@ -70,9 +71,10 @@ const SEIR = () => {
             timestep={inState.dt}
             tmax={inState.dt * 100}
             N={inState.N}
-            ymax={max(solState["P"], inState.checked)}
+            ymax={max(solState["P"].slice(0,100), inState.checked)}
             InterventionTime={inState.InterventionTime}
             colors={[ "#386cb0", "#8da0cb", "#4daf4a", "#f0027f", "#fdc086"]}
+            log={inState.log }
             checked={inState.checked}
             />
     <label htmlFor="N">Population size (N):</label>
