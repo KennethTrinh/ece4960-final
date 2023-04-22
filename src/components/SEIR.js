@@ -70,7 +70,7 @@ const SEIR = () => {
             timestep={inState.dt}
             tmax={inState.dt * 100}
             N={inState.N}
-            // ymax={lock ? Plock: Pmax}
+            ymax={max(solState["P"], inState.checked)}
             InterventionTime={inState.InterventionTime}
             colors={[ "#386cb0", "#8da0cb", "#4daf4a", "#f0027f", "#fdc086"]}
             checked={inState.checked}
