@@ -44,7 +44,9 @@ const SEIR = () => {
             inState.P_SEVERE, inState.CFR, inState.InterventionTime,
             inState.InterventionAmt,inState.duration)
         );
-    }, [inState.dt, inState.N, inState.I0, inState.R0])
+        console.log('called');
+    }, [inState.dt, inState.N, inState.I0, inState.R0,
+        inState.InterventionTime])
 
     // $: Sol            = get_solution(dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital_lag, D_recovery_severe, D_death, P_SEVERE, CFR, InterventionTime, InterventionAmt, duration)
     // $: P              = Sol["P"].slice(0,100)
@@ -76,6 +78,8 @@ const SEIR = () => {
             colors={[ "#386cb0", "#8da0cb", "#4daf4a", "#f0027f", "#fdc086"]}
             log={inState.log }
             checked={inState.checked}
+            // render props
+            setInterventionState = {(InterventionTime) => {setState( (prev) => ({...prev, InterventionTime: InterventionTime})) }}
             />
     <label htmlFor="N">Population size (N):</label>
         <input

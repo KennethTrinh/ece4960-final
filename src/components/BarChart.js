@@ -7,19 +7,18 @@ import { useWindowSize, sum } from './utils';
 // https://stackoverflow.com/questions/65625086/how-to-use-d3-with-reactjs-nextjs
 
 function drawChart(y, checked, svgRef, width, height, 
-              tmax, xmax, deaths, total, vline, 
-              timestep, total_infected, N, ymax, 
-                InterventionTime, colors, log, 
-                interventionSlider, setInterventionSlider) {
-
+                  tmax, xmax, deaths, total, vline, 
+                  timestep, total_infected, N, ymax, 
+                  InterventionTime, colors, log, setInterventionState,
+                  interventionSlider, setInterventionSlider,
+                  lock, setLock, Pmax, setPmax) {
+  ymax = lock ? Pmax : ymax;
   const [m, n] = [y.length, y[0].length];
 
   const svg = d3.select(svgRef.current);
 
-  // y1Max = d3.max(yz, row => d3.max(row)),
   const arr = y.map((row) => row.map((val, j) => val * (checked[j] ? 1 : 0))); // 110, 5
   const y01z = d3.stack().keys(d3.range(n))(arr), // 5, 110, 2
-      // y1Max = d3.max(y01z, function(y) { return d3.max(y, function(d) { return d[1]; }); }),
       margin = {top: 20, right: 30, bottom: 30, left: 40},
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
@@ -162,28 +161,38 @@ function drawChart(y, checked, svgRef, width, height,
       .attr("stroke-dasharray", "40,2")
       .attr("stroke-width", 10)
       .call(d3.drag()
-        .on("drag", (event) => {
-          const newX = event.x;
-          // Restrict slider to be within bounds
-          if (newX < margin.left || newX > width - margin.right) return;
-          // Update position of slider
-          sliderLine.attr("x1", newX).attr("x2", newX);
-          setInterventionSlider(newX);
-      
-          sliderText.text(`Intervention\n Day:\n ${xScaleTime.invert(newX)}`);
-          sliderText.attr("x", newX - 100);
-        })
-        .on('start', () => sliderLine.attr('stroke', 'red'))
-        .on('end', () => sliderLine.attr('stroke', 'black'))
+          .on("drag", (event) => {
+            const newX = event.x;
+            // Restrict slider to be within bounds
+            if (newX < margin.left || newX > width - margin.right) return;
+            // Update position of slider
+            sliderLine.attr("x1", newX).attr("x2", newX);
+            setInterventionSlider(newX);
+            
+            sliderText.text(`Intervention\n Day:\n ${Math.round(xScaleTime.invert(newX))}`);
+            sliderText.attr("x", newX - 100);
+            setInterventionState( Math.round(xScaleTime.invert(newX)) );
+            
+                      }
+          )
+          .on('start', () => {
+                            setLock(true);
+                            setPmax(ymax);
+                        }
+          )
+          .on('end', () => {
+                            setLock(false);
+                        }
+          )
         );
     
     // Add text element to display slider position
     const sliderText = svg.append("text")
       .attr("class", "slider-text")
-      .attr("x", interventionSlider? interventionSlider: innerWidth / 2 - 100)
+      .attr("x", interventionSlider? interventionSlider - 100 : innerWidth / 2 - 100)
       .attr("y", innerHeight + 40)
-      .text(`Intervention Day: ${interventionSlider ? xScaleTime.invert(interventionSlider) : 
-        xScaleTime.invert(innerWidth / 2)}`);               
+      .text(`Intervention Day: ${interventionSlider ? Math.round(xScaleTime.invert(interventionSlider)) : 
+        Math.round(xScaleTime.invert(innerWidth / 2))}`);               
 
 
 
@@ -194,16 +203,13 @@ const BarChart = ({ y, tmax, xmax, deaths,
                     total, vline, timestep, 
                     total_infected, N, ymax, 
                     InterventionTime, colors, log, 
-                    checked }) => {
+                    checked, setInterventionState }) => {
 
     const size = useWindowSize();
     const svg = useRef(null);
     const [interventionSlider, setInterventionSlider] = useState(null);
-
-    // useEffect(() => {
-    //     console.log("y: ", y)
-    //     console.log(size.width, size.height)
-    // }, [size.width, size.height])
+    const [lock, setLock] = useState(false);
+    const [Pmax, setPMax] = useState(1);
 
     useEffect(() => {
         // drawChart(svg, width*0.5, height*0.5);
@@ -212,7 +218,9 @@ const BarChart = ({ y, tmax, xmax, deaths,
               tmax, xmax, deaths, 
               total, vline, timestep, 
               total_infected, N, ymax, 
-              InterventionTime, colors, log, interventionSlider, setInterventionSlider);
+              InterventionTime, colors, log, setInterventionState,
+              interventionSlider, setInterventionSlider,
+              lock, setLock, Pmax, setPMax);
         }
     }, [svg, y, size.width, size.height]);
 
