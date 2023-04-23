@@ -1,6 +1,22 @@
 import BarChart from "./BarChart";
 import { useState, useEffect } from "react";
 import {max, integrate, get_solution} from "./utils";
+import Checkbox from "./Checkbox";
+import Arrow from "./Arrow";
+
+const Link = ({ state, color, callback, leftText, rightText }) => {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {state}
+        <Checkbox color={color} checked={false} callback={callback} style={{ marginBottom: "10px" }} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ fontSize: "12px" }}>{leftText}</span>
+          <Arrow height="41" />
+          <span style={{ fontSize: "12px" }}>{rightText}</span>
+        </div>
+      </div>
+    );
+}
 
 const SEIR = () => {
     const [inState, setState] = useState({
@@ -64,6 +80,14 @@ const SEIR = () => {
   
   return (
     <div>
+    <div style={{ display: "flex", flexDirection: "row" }}>
+        {/* // center it and set left and right margins */}
+        <div style={{ flex: "1 1 auto", marginLeft: "-10%"}} align="center">
+            Day
+            <Link state={'Susceptible'} color={'#386cb0'} 
+                callback={(checked) => console.log(checked)} 
+                leftText={'Text to the left'} rightText={'Text to the right'} />
+        </div>
         <BarChart
             y = {solState["P"].slice(0,100)} 
             xmax = {inState.Xmax} 
@@ -81,6 +105,7 @@ const SEIR = () => {
             // render props
             setInterventionState = {(InterventionTime) => {setState( (prev) => ({...prev, InterventionTime: InterventionTime})) }}
             />
+    </div>
     <label htmlFor="N">Population size (N):</label>
         <input
           type="range"

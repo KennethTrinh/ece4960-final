@@ -224,12 +224,6 @@ const BarChart = ({ y, tmax, xmax, deaths,
         }
     }, [svg, y, size.width, size.height]);
 
-  //   useEffect(() => {
-  //     // drawChart(svg, width*0.5, height*0.5);
-  //     drawChart(y, svg, size.width*0.8, size.height);
-  // }, [size.width, size.height, svg]);
-
-
     return (
       <div id="chart">
         { size.width && size.height ? 
