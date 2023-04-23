@@ -20,7 +20,7 @@ function drawChart(y, checked, svgRef, width, height,
   const arr = y.map((row) => row.map((val, j) => val * (checked[j] ? 1 : 0))); // 110, 5
   const y01z = d3.stack().keys(d3.range(n))(arr), // 5, 110, 2
       // y1Max = d3.max(y01z, function(y) { return d3.max(y, function(d) { return d[1]; }); }),
-      margin = {top: 20, right: 20, bottom: 30, left: 20},
+      margin = {top: 20, right: 30, bottom: 30, left: 40},
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
       barWidth = innerWidth / m - 1.5
@@ -79,13 +79,14 @@ function drawChart(y, checked, svgRef, width, height,
   
   // y-axis
   const yAxis = d3.axisLeft(yScale)
-  .tickSize(-width) 
-  .tickPadding(10) // add space between tick labels and tick lines
-  .ticks(5) // specify the number of ticks you want
-  .tickFormat((d, i) => (i === 0 ? "" : d));
+      .tickSize(-width) 
+      .tickPadding(5) // add space between tick labels and tick lines
+      .ticks(5) // specify the number of ticks you want
+      .tickFormat((d, i) => (i === 0 ? "" : d));
 
   const yAxisGroup = svg.append('g')
     .attr('class', 'axis y-axis')
+    .attr('transform', `translate(${margin.left}, 0)`)
     .call(yAxis);
   
     yAxisGroup.selectAll('.tick line')
@@ -99,8 +100,7 @@ function drawChart(y, checked, svgRef, width, height,
     .attr('font-weight', 'bold')
     .attr('opacity', 1)
     // move the labels to the right
-    .attr('x', 40)
-    
+    .attr('x', 0)
   
     //hide the y-axis line
   yAxisGroup.select('.domain').remove();
@@ -109,7 +109,7 @@ function drawChart(y, checked, svgRef, width, height,
       .attr("class", "series")
       .attr("fill", (_, i) => color(i));
   
-    newSeries.merge(series) // Update existing and new bars
+  newSeries.merge(series) // Update existing and new bars
       .selectAll("rect")
       .data(d => d)
       .join(
@@ -130,8 +130,28 @@ function drawChart(y, checked, svgRef, width, height,
       .attr("x", (d, i) => xScale(i))
       .attr("y", d => yScale(d[1]))
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
-      
-    
+      .attr("id", (_, i) => i)
+
+    newSeries.merge(series)
+      .selectAll("rect")
+      .on("mouseover", (d) => {
+          const element = d.target;
+          const index = element.id;
+          // get all the rects with the same index
+          const rects = document.querySelectorAll(`rect[id="${index}"]`);
+          rects.forEach(rect => rect.style.fill = "rgba(0, 0, 0, 0.2)");
+          rects.forEach(rect => rect.classList.add("hovered"));
+          // get the corresponding data from y01z
+          const tooltipData = y01z.map(series => series[index]);
+          console.log(tooltipData)
+
+      })
+      .on("mouseout", function() {
+        // Remove the fill
+        d3.selectAll(".hovered").style("fill", null);
+        
+      });
+
   const sliderLine = svg.append("line")
       .attr("class", "slider")
       .attr("x1", interventionSlider ? interventionSlider : innerWidth / 2)
@@ -145,22 +165,25 @@ function drawChart(y, checked, svgRef, width, height,
         .on("drag", (event) => {
           const newX = event.x;
           // Restrict slider to be within bounds
-          if (newX < 0 || newX > innerWidth) return;
+          if (newX < margin.left || newX > width - margin.right) return;
           // Update position of slider
           sliderLine.attr("x1", newX).attr("x2", newX);
           setInterventionSlider(newX);
-          // Update position of sliderText
-          sliderText.attr("x", newX );
       
-          sliderText.text(`Intervention Day: ${newX}`);
-        }));
+          sliderText.text(`Intervention\n Day:\n ${xScaleTime.invert(newX)}`);
+          sliderText.attr("x", newX - 100);
+        })
+        .on('start', () => sliderLine.attr('stroke', 'red'))
+        .on('end', () => sliderLine.attr('stroke', 'black'))
+        );
     
     // Add text element to display slider position
     const sliderText = svg.append("text")
       .attr("class", "slider-text")
-      .attr("x", interventionSlider? interventionSlider: innerWidth / 2 )
+      .attr("x", interventionSlider? interventionSlider: innerWidth / 2 - 100)
       .attr("y", innerHeight + 40)
-      .text(`Intervention Day: ${interventionSlider ? interventionSlider : innerWidth / 2}`);
+      .text(`Intervention Day: ${interventionSlider ? xScaleTime.invert(interventionSlider) : 
+        xScaleTime.invert(innerWidth / 2)}`);               
 
 
 
@@ -191,7 +214,7 @@ const BarChart = ({ y, tmax, xmax, deaths,
               total_infected, N, ymax, 
               InterventionTime, colors, log, interventionSlider, setInterventionSlider);
         }
-    }, [svg, y]);
+    }, [svg, y, size.width, size.height]);
 
   //   useEffect(() => {
   //     // drawChart(svg, width*0.5, height*0.5);
