@@ -1,5 +1,6 @@
 // global.sandbox = require('./sandbox.js')
 import { useState, useEffect } from 'react';
+
 export const print = (...args) => console.log(...args)
 
 export const max = (P, checked) => {
@@ -26,6 +27,10 @@ export const sum = function(arr, bools){
       x = x + arr[i]*(bools[i] ? 1 : 0)
     }
     return x
+}
+
+export function formatNumber(num) {
+    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 }
 
 export function useWindowSize() {

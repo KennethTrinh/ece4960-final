@@ -11,6 +11,7 @@ function drawChart(y, checked, svgRef, width, height,
                   timestep, total_infected, N, ymax, 
                   InterventionTime, colors, log, setInterventionState,
                   interventionSlider, setInterventionSlider,
+                  setActiveIndex, setActiveTime,
                   lock, setLock, Pmax, setPmax) {
   ymax = lock ? Pmax : ymax;
   const [m, n] = [y.length, y[0].length];
@@ -49,12 +50,8 @@ function drawChart(y, checked, svgRef, width, height,
         
   var color = d3.scaleOrdinal()
                 .domain(d3.range(n))
-                .range([
-                  'rgba(253, 192, 134, 1)',
-                  'rgba(240, 2, 127, 1)',
-                  'rgba(77, 175, 74, 1)',
-                  'rgba(141, 160, 203, 1 )',
-                  'rgba(56, 108, 176, 1)'
+                .range(['rgba(56, 108, 176, 1)', 'rgba(141, 160, 203, 1 )',
+                  'rgba(77, 175, 74, 1)', 'rgba(240, 2, 127, 1)', 'rgba(253, 192, 134, 1)',
                 ]);
             
   const series = svg.selectAll(".series")
@@ -64,6 +61,7 @@ function drawChart(y, checked, svgRef, width, height,
   svg.selectAll(".axis").remove();
   svg.selectAll(".slider").remove();
   svg.selectAll(".slider-text").remove();
+  svg.selectAll(".overlay").remove();
   
   // x-axis
   const xAxis = d3.axisBottom(xScaleTime)
@@ -76,34 +74,6 @@ function drawChart(y, checked, svgRef, width, height,
     .attr("transform", `translate(0, ${innerHeight})`)
     .call(xAxis);
   
-  // y-axis
-  const yAxis = d3.axisLeft(yScale)
-      .tickSize(-width) 
-      .tickPadding(5) // add space between tick labels and tick lines
-      .ticks(5) // specify the number of ticks you want
-      .tickFormat((d, i) => (i === 0 ? "" : d));
-
-  const yAxisGroup = svg.append('g')
-    .attr('class', 'axis y-axis')
-    .attr('transform', `translate(${margin.left}, 0)`)
-    .call(yAxis);
-  
-    yAxisGroup.selectAll('.tick line')
-    .attr('stroke', 'white')
-    .attr('stroke-dasharray', '2 2')
-  
-  // add labels to the tick marks
-  yAxisGroup.selectAll('.tick text')
-    .attr('fill', 'black')
-    .attr('font-size', '12px')
-    .attr('font-weight', 'bold')
-    .attr('opacity', 1)
-    // move the labels to the right
-    .attr('x', 0)
-  
-    //hide the y-axis line
-  yAxisGroup.select('.domain').remove();
-
   const newSeries = series.enter().append("g")
       .attr("class", "series")
       .attr("fill", (_, i) => color(i));
@@ -131,19 +101,30 @@ function drawChart(y, checked, svgRef, width, height,
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
       .attr("id", (_, i) => i)
 
-    newSeries.merge(series)
-      .selectAll("rect")
-      .on("mouseover", (d) => {
+    // make overlay to detect when bars are hovered over
+    svg.append("g")
+        .attr("class", "overlay")
+        .selectAll("rect")
+        .data(y01z[0])
+        .enter()
+        .append("rect")
+        .attr("x", (_, i) => xScale(i))
+        .attr("y", 0)
+        .attr("width", barWidth)
+        .attr("height", innerHeight)
+        .attr("fill", "transparent")
+        .attr("id", (_, i) => `overlay-${i}`)
+        .on("mouseover", (d) => {
           const element = d.target;
-          const index = element.id;
-          // get all the rects with the same index
+          const index = element.id.split("-")[1];
           const rects = document.querySelectorAll(`rect[id="${index}"]`);
           rects.forEach(rect => rect.style.fill = "rgba(0, 0, 0, 0.2)");
           rects.forEach(rect => rect.classList.add("hovered"));
-          // get the corresponding data from y01z
-          const tooltipData = y01z.map(series => series[index]);
-          console.log(tooltipData)
-
+          // console.log(index)
+          // const tooltipData = y01z.map(series => series[index]);
+          // console.log(tooltipData)
+          setActiveIndex(index);
+          setActiveTime(Math.round(indexToTime(index)));
       })
       .on("mouseout", function() {
         // Remove the fill
@@ -153,8 +134,8 @@ function drawChart(y, checked, svgRef, width, height,
 
   const sliderLine = svg.append("line")
       .attr("class", "slider")
-      .attr("x1", interventionSlider ? interventionSlider : innerWidth / 2)
-      .attr("x2", interventionSlider ? interventionSlider : innerWidth / 2)
+      .attr("x1", interventionSlider ? interventionSlider : xScale(y.length/2))
+      .attr("x2", interventionSlider ? interventionSlider : xScale(y.length/2))
       .attr("y1", 0)
       .attr("y2", innerHeight)
       .attr("stroke", "black")
@@ -189,11 +170,37 @@ function drawChart(y, checked, svgRef, width, height,
     // Add text element to display slider position
     const sliderText = svg.append("text")
       .attr("class", "slider-text")
-      .attr("x", interventionSlider? interventionSlider - 100 : innerWidth / 2 - 100)
+      .attr("x", interventionSlider? interventionSlider - 100 : xScale(y.length/2) - 100)
       .attr("y", innerHeight + 40)
       .text(`Intervention Day: ${interventionSlider ? Math.round(xScaleTime.invert(interventionSlider)) : 
-        Math.round(xScaleTime.invert(innerWidth / 2))}`);               
+        Math.round(xScaleTime.invert(xScale(y.length/2)))}`);     
 
+    // y-axis
+    const yAxis = d3.axisLeft(yScale)
+        .tickSize(-width) 
+        .tickPadding(5) // add space between tick labels and tick lines
+        .ticks(5) // specify the number of ticks you want
+        .tickFormat((d, i) => (i === 0 ? "" : d));
+    const yAxisGroup = svg.append('g')
+        .attr('class', 'axis y-axis')
+        .attr('transform', `translate(${margin.left}, 0)`) // TODO: fix for bigger numbers
+        .call(yAxis);
+      
+    yAxisGroup.selectAll('.tick line')
+      .attr('stroke', 'white')
+      .attr('stroke-dasharray', '2 2')
+    
+    // add labels to the tick marks
+    yAxisGroup.selectAll('.tick text')
+      .attr('fill', 'black')
+      .attr('font-size', '12px')
+      .attr('font-weight', 'bold')
+      .attr('opacity', 1)
+      // move the labels to the right
+      .attr('x', 0)
+    
+      //hide the y-axis line
+    yAxisGroup.select('.domain').remove();
 
 
 }
@@ -203,7 +210,8 @@ const BarChart = ({ y, tmax, xmax, deaths,
                     total, vline, timestep, 
                     total_infected, N, ymax, 
                     InterventionTime, colors, log, 
-                    checked, setInterventionState }) => {
+                    checked, setInterventionState, 
+                    setActiveIndex, setActiveTime }) => {
 
     const size = useWindowSize();
     const svg = useRef(null);
@@ -214,15 +222,16 @@ const BarChart = ({ y, tmax, xmax, deaths,
     useEffect(() => {
         // drawChart(svg, width*0.5, height*0.5);
         if (size.width && size.height) {
-        drawChart(y, checked, svg, size.width*0.7, size.height*0.8, 
-              tmax, xmax, deaths, 
-              total, vline, timestep, 
-              total_infected, N, ymax, 
-              InterventionTime, colors, log, setInterventionState,
-              interventionSlider, setInterventionSlider,
-              lock, setLock, Pmax, setPMax);
+          drawChart(y, checked, svg, size.width*0.7, size.height*0.8, 
+                tmax, xmax, deaths, 
+                total, vline, timestep, 
+                total_infected, N, ymax, 
+                InterventionTime, colors, log, setInterventionState,
+                interventionSlider, setInterventionSlider, 
+                setActiveIndex, setActiveTime,
+                lock, setLock, Pmax, setPMax);
         }
-    }, [svg, y, size.width, size.height]);
+    }, [svg, y, size.width, size.height, checked]);
 
     return (
       <div id="chart">

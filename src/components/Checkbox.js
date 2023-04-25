@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Checkbox({ color, checked = false, callback = () => {} }) {
+function Checkbox({ color, checked = false, callback = () => {}, checkable = true }) {
   const [isChecked, setIsChecked] = useState(checked);
 
   const handleClick = () => {
@@ -23,15 +23,15 @@ function Checkbox({ color, checked = false, callback = () => {} }) {
         boxShadow: "inset 1px 1px 3px rgba(0, 0, 0, 0.1)",
         userSelect: "none",
       }}
-      onClick={handleClick}
+      onClick={checkable? handleClick: () => {}}
     >
       <div
         style={{
           cursor: "default",
           fontSize: "20px",
-          left: "2px",
-          top: "-1px",
-          position: "absolute",
+          left: "0px",
+          top: "0px",
+          position: "relative",
           color: "white",
         }}
       >
