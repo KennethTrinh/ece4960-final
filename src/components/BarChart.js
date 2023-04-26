@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import styles from '@/styles/BarChart.module.css'
 import * as d3 from "d3";
-import {brushX} from 'd3-brush';
-import { useWindowSize, sum } from './utils';
+import { useWindowSize, colors } from './utils';
 
 // https://stackoverflow.com/questions/65625086/how-to-use-d3-with-reactjs-nextjs
 
@@ -49,9 +47,7 @@ function drawChart(y, checked, svgRef, width, height,
         
   const color = d3.scaleOrdinal()
                 .domain(d3.range(n))
-                .range(['rgba(56, 108, 176, 1)', 'rgba(141, 160, 203, 1 )',
-                  'rgba(77, 175, 74, 1)', 'rgba(240, 2, 127, 1)', 'rgba(253, 192, 134, 1)',
-                ]);
+                .range(colors);
                 
   const arr = y.map((row) => row.map((val, j) => val * (checked[j] ? 1 : 0))); // 110, 5
   

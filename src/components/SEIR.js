@@ -1,7 +1,7 @@
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
 import { useState, useEffect, useReducer, createContext, useContext } from "react";
-import {max, get_solution, formatNumber, useWindowSize} from "./utils";
+import {colors, max, get_solution, formatNumber, useWindowSize} from "./utils";
 import Checkbox from "./Checkbox";
 import BarChart from "./BarChart";
 import Arrow from "./Arrow";
@@ -70,6 +70,25 @@ const Link = ({ state, color, callback=() => {},
 const SEIR = () => {
 
     const size = useWindowSize();
+    const Context = createContext();
+    const [removed, setRemoved] = useState(false);
+    const [recovered, setRecovered] = useState(false);
+    const [hospitalized, setHospitalized] = useState(true);
+    const [dead, setDead] = useState(true);
+    const [log, setLog] = useState(false);
+
+    const [checked, setChecked] = useReducer((state, action) => {
+        switch (action.type) {
+            case 'set':
+                const newState = [...state];
+                action.indices.forEach((index, i) => {
+                    newState[index] = action.value;
+                });
+                return newState;
+            default:
+                return state;
+        }
+    }, [true, true, false, true, true]);
 
     const [inState, setState] = useState({
         Time_to_death: 32,
@@ -103,8 +122,6 @@ const SEIR = () => {
         inState.InterventionAmt,inState.duration)
     );
 
-
-
     useEffect(() => {
         setSolState(get_solution(inState.dt, inState.N, inState.I0, inState.R0,
             inState.D_incbation, inState.D_infectious, 
@@ -118,18 +135,6 @@ const SEIR = () => {
         inState.D_infectious, inState.D_recovery_mild, inState.D_hospital_lag,
         inState.Time_to_death, inState.P_SEVERE, inState.CFR, inState.OMInterventionAmt,
         inState.InterventionTime])
-
-    // $: Sol            = get_solution(dt, N, I0, R0, D_incbation, D_infectious, D_recovery_mild, D_hospital_lag, D_recovery_severe, D_death, P_SEVERE, CFR, InterventionTime, InterventionAmt, duration)
-    // $: P              = Sol["P"].slice(0,100)
-    // $: timestep       = dt
-    // $: tmax           = dt*100
-    // $: deaths         = Sol["deaths"]
-    // $: total          = Sol["total"]
-    // $: total_infected = Sol["total_infected"].slice(0,100)
-    // $: Iters          = Sol["Iters"]
-    // $: dIters         = Sol["dIters"]
-    // $: Pmax           = max(P, checked)
-    // $: lock           = false
     
     const [summation, setSummation] = useState(solState["Iters"][inState.activeIndex]);
     const [diff, setDiff] = useState(solState["dIters"](inState.activeTime, solState["Iters"][inState.activeIndex]));
@@ -141,29 +146,6 @@ const SEIR = () => {
     useEffect(() => {
         setDiff(solState["dIters"](inState.activeTime, solState["Iters"][inState.activeIndex]));
     }, [inState.activeTime, inState.activeIndex, solState["dIters"], solState["Iters"]])
-
-    const colors = [ "#386cb0", "#8da0cb", "#4daf4a", "#f0027f", "#fdc086"]
-
-    const [checked, setChecked] = useReducer((state, action) => {
-        switch (action.type) {
-            case 'set':
-                const newState = [...state];
-                action.indices.forEach((index, i) => {
-                    newState[index] = action.value;
-                });
-                return newState;
-            default:
-                return state;
-        }
-    }, [true, true, false, true, true]);
-
-    const [removed, setRemoved] = useState(false);
-    const [recovered, setRecovered] = useState(false);
-    const [hospitalized, setHospitalized] = useState(true);
-    const [dead, setDead] = useState(true);
-
-    const Context = createContext();
-    const [log, setLog] = useState(false);
 
   return (
     <div>

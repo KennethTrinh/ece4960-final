@@ -1,6 +1,7 @@
 // global.sandbox = require('./sandbox.js')
 import { useState, useEffect } from 'react';
-import katex from 'katex';
+
+export const colors = [ "#386cb0", "#8da0cb", "#4daf4a", "#f0027f", "#fdc086"]
 
 export const print = (...args) => console.log(...args)
 
