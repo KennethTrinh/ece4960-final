@@ -7,6 +7,20 @@ import BarChart from "./BarChart";
 import Arrow from "./Arrow";
 import styles from '@/styles/SEIR.module.css'
 
+const Slider = ({title, latex='', description='', displayValue, min, max, step, value, callback}) => {
+    return (
+        <>
+            <div className={styles.paneltitle}> {title} {latex ? latex: ''} </div>
+            <div className={styles.paneldesc}> {description} </div>
+            <div className={styles.slidertext}> {displayValue} </div>
+            <input type="range" min={min} max={max} step={step} id={title} name={title} value={value}
+                onChange={(e) => callback(e.target.value)}
+                style={{width: '90%'}}
+            />
+        </>
+    )
+}
+
 const Link = ({ state, color, callback=() => {}, 
             labelText, sumText, changeText, 
             checkable = true, checked = true,
@@ -15,10 +29,10 @@ const Link = ({ state, color, callback=() => {},
     return (
         screenHeight ? (
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", fontSize: "11px" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", fontSize: "11px", fontWeight: "bold"}}>
                     {state}
                     <Checkbox color={color} checked={checked} callback={callback} checkable={checkable} />
-                    { arrow ? <Arrow height={screenHeight/12} arrowhead={arrowhead} dasharray={dasharray} /> : null }
+                    { arrow ? <Arrow height={screenHeight/15} arrowhead={arrowhead} dasharray={dasharray} /> : null }
                 </div>
                 <div style={{ display: "flex", alignItems: "center", flexDirection: "column", maxWidth: "100px", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "10px", marginBottom: "10px" }}>{labelText}</span>
@@ -308,7 +322,8 @@ const SEIR = () => {
         </div>
         <div className={styles.columns}>
             <div style={{ margin: '30px' }}>
-                <Checkbox checked={log} color={'grey'}  callback={()=> {setLog(!log)}} label="Logarithmic Scale" />
+                Logarithmic Scale
+                <Checkbox checked={log} color={'grey'}  callback={()=> {setLog(!log)}} />
             </div>
         </div>
 
@@ -318,20 +333,5 @@ const SEIR = () => {
     </div>
   )
 }
-
-const Slider = ({title, latex='', description='', displayValue, min, max, step, value, callback}) => {
-    return (
-        <>
-            <div className={styles.paneltitle}> {title} {latex ? latex: ''} </div>
-            <div className={styles.paneldesc}> {description} </div>
-            <div className={styles.slidertext}> {displayValue} </div>
-            <input type="range" min={min} max={max} step={step} id={title} name={title} value={value}
-                onChange={(e) => callback(e.target.value)}
-                style={{width: '90%'}}
-            />
-        </>
-    )
-}
-
 
 export default SEIR;
