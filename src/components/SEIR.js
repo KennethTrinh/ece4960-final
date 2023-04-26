@@ -7,6 +7,27 @@ import BarChart from "./BarChart";
 import Arrow from "./Arrow";
 import styles from '@/styles/SEIR.module.css'
 
+const DiffEquations = () => {
+    const Tinc_s = "{T^{-1}_{\\text{inc}}} "
+    const Tinf_s = "{T^{-1}_{\\text{inf}}}"
+    const Rt_s   = "{\\frac{\\mathcal{R}_{t}}{T_{\\text{inf}}}} "
+    const ode_eqn = "\\frac{d S}{d t}=-" +Rt_s +"\\cdot IS\
+    \\qquad \\frac{d E}{d t}=" +Rt_s +"\\cdot IS- " + Tinc_s + " E\
+    \\qquad \\frac{d I}{d t}=" + Tinc_s + "E-" + Tinf_s+ "I\
+    \\qquad \\frac{d R}{d t}=" + Tinf_s+ "I";
+  
+    return (
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+            <span style={{fontSize: '20px', fontWeight: 'bold', marginBottom: '10px'}}> 
+            Simplified Differential Equations Used:
+            </span>
+            <BlockMath>
+                {ode_eqn}
+            </BlockMath>
+        </div>
+    );
+};
+
 const Slider = ({title, latex='', description='', displayValue, min, max, step, value, callback}) => {
     return (
         <>
@@ -321,15 +342,13 @@ const SEIR = () => {
                         />
         </div>
         <div className={styles.columns}>
-            <div style={{ margin: '30px' }}>
+            <div style={{ margin: '30px' }} className={styles.paneltitle}>
                 Logarithmic Scale
                 <Checkbox checked={log} color={'grey'}  callback={()=> {setLog(!log)}} />
             </div>
         </div>
-
-
-        
     </div>
+    <DiffEquations />
     </div>
   )
 }
