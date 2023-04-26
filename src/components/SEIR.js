@@ -148,7 +148,7 @@ const SEIR = () => {
     <div>
     <div style={{ display: "flex", flexDirection: "row", marginLeft : "0%", marginRight: "0%"}}>
         {/* // center it and set left and right margins */}
-        <div style={{ flex: "1 1 auto", marginLeft: "-10%", alignItems: "center", justifyContent: "center"}}>
+        <div style={{ flex: "1 1 auto", marginLeft: "-5%", alignItems: "center", justifyContent: "center"}}>
             <div style={{ display: "flex", flexDirection: "column" ,alignItems: "center"}}>
                 <div style={{marginBottom: '20px'}}>Day {inState.activeTime} </div>
                 <Link state={'Susceptible'} color={'grey'} 
