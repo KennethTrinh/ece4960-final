@@ -228,9 +228,6 @@ const SEIR = () => {
             setActiveTime = {(activeTime) => {setState( (prev) => ({...prev, activeTime: activeTime})) }}
             />
     </div>
-    <div style={{ margin: '30px' }}>
-            <Checkbox checked={log} color={'grey'}  callback={()=> {setLog(!log)}} label="Logarithmic Scale" />
-    </div>
     <div className={styles.row}>
         <div className={styles.columns}>
             <Slider title={'Population size'} displayValue={parseInt(inState.N)} 
@@ -309,6 +306,12 @@ const SEIR = () => {
                         callback={(value) => setState( (prev) => ({...prev, D_hospital_lag: parseFloat(value)}) ) }
                         />
         </div>
+        <div className={styles.columns}>
+            <div style={{ margin: '30px' }}>
+                <Checkbox checked={log} color={'grey'}  callback={()=> {setLog(!log)}} label="Logarithmic Scale" />
+            </div>
+        </div>
+
 
         
     </div>
