@@ -52,11 +52,7 @@ function drawChart(y, checked, svgRef, width, height,
                 .range(['rgba(56, 108, 176, 1)', 'rgba(141, 160, 203, 1 )',
                   'rgba(77, 175, 74, 1)', 'rgba(240, 2, 127, 1)', 'rgba(253, 192, 134, 1)',
                 ]);
-  //   y="{(function () { 
-  //     var z = yScale( sum(y[i].slice(0,j+1), checked) ); 
-  //     return Math.min(isNaN(z) ? 0: z, height - padding.top)
-  //   })()  
-  // }"
+                
   const arr = y.map((row) => row.map((val, j) => val * (checked[j] ? 1 : 0))); // 110, 5
   
   // 5, 110, 2
@@ -137,8 +133,8 @@ function drawChart(y, checked, svgRef, width, height,
           const element = d.target;
           const index = element.id.split("-")[1];
           const rects = document.querySelectorAll(`rect[id="${index}"]`);
-          rects.forEach(rect => rect.style.fill = "rgba(0, 0, 0, 0.2)");
-          rects.forEach(rect => rect.classList.add("hovered"));
+          rects.forEach(rect => {rect.style.fill = "rgba(0, 0, 0, 0.2)"
+                                  rect.classList.add("hovered")});
           // console.log(index)
           // const tooltipData = y01z.map(series => series[index]);
           // console.log(tooltipData)
@@ -148,9 +144,30 @@ function drawChart(y, checked, svgRef, width, height,
       .on("mouseout", function() {
         // Remove the fill
         d3.selectAll(".hovered").style("fill", null);
-        
       });
-
+  
+  const drag = d3.drag()
+              .on("drag", (event) => {
+                const newX = event.x;
+                // Restrict slider to be within bounds
+                if (newX < margin.left || newX > width - margin.right) return;
+                // Update position of slider
+                sliderLine.attr("x1", newX).attr("x2", newX);
+                setInterventionSlider(newX);
+                sliderText.text(`Intervention\n Day:\n ${Math.round(xScaleTime.invert(newX))}`);
+                sliderText.attr("x", newX - 100);
+                setInterventionState( Math.round(xScaleTime.invert(newX)) );
+                          }
+              )
+              .on('start', () => {
+                                setLock(true);
+                                setPmax(ymax);
+                            }
+              )
+              .on('end', () => {
+                                setLock(false);
+                            }
+              )
   const sliderLine = svg.append("line")
       .attr("class", "slider")
       .attr("x1", interventionSlider ? interventionSlider : xScale(y.length/2))
@@ -160,39 +177,18 @@ function drawChart(y, checked, svgRef, width, height,
       .attr("stroke", "black")
       .attr("stroke-dasharray", "40,2")
       .attr("stroke-width", 10)
-      .call(d3.drag()
-          .on("drag", (event) => {
-            const newX = event.x;
-            // Restrict slider to be within bounds
-            if (newX < margin.left || newX > width - margin.right) return;
-            // Update position of slider
-            sliderLine.attr("x1", newX).attr("x2", newX);
-            setInterventionSlider(newX);
-            
-            sliderText.text(`Intervention\n Day:\n ${Math.round(xScaleTime.invert(newX))}`);
-            sliderText.attr("x", newX - 100);
-            setInterventionState( Math.round(xScaleTime.invert(newX)) );
-            
-                      }
-          )
-          .on('start', () => {
-                            setLock(true);
-                            setPmax(ymax);
-                        }
-          )
-          .on('end', () => {
-                            setLock(false);
-                        }
-          )
-        );
+      .attr("cursor", "move")
+      .call(drag);
     
     // Add text element to display slider position
     const sliderText = svg.append("text")
       .attr("class", "slider-text")
       .attr("x", interventionSlider? interventionSlider - 100 : xScale(y.length/2) - 100)
-      .attr("y", innerHeight + 40)
+      .attr("y",  innerHeight + 40)
+      .attr("cursor", "move")
       .text(`Intervention Day: ${interventionSlider ? Math.round(xScaleTime.invert(interventionSlider)) : 
-        Math.round(xScaleTime.invert(xScale(y.length/2)))}`);     
+        Math.round(xScaleTime.invert(xScale(y.length/2)))}`)
+      .call(drag);
 
     // y-axis
     const yAxis = d3.axisLeft(yScale)
@@ -216,8 +212,12 @@ function drawChart(y, checked, svgRef, width, height,
       .attr('font-weight', 'bold')
       .attr('opacity', 1)
       // move the labels to the right
-      .attr('x', 0)
-    
+      .each(function() {
+        const bbox = this.getBBox();
+        const textWidth = bbox.width;
+        d3.select(this).attr('x', textWidth);
+      })
+      .attr('y', -10); // move the label above the tick by adjusting the y position
       //hide the y-axis line
     yAxisGroup.select('.domain').remove();
 
