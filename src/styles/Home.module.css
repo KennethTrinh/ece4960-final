@@ -2,13 +2,15 @@
 @import url('https://fonts.googleapis.com/css?family=Raleway|Titillium+Web');
 .main {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   justify-content: space-between;
   align-items: center;
-  padding: 6rem;
+  padding: 3rem;
   min-height: 100vh;
   background-color: pink;
   font-family: 'Raleway', sans-serif;
+  width: 100%;
+  
 }
 
 .description {

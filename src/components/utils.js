@@ -1,5 +1,6 @@
 // global.sandbox = require('./sandbox.js')
 import { useState, useEffect } from 'react';
+import katex from 'katex';
 
 export const print = (...args) => console.log(...args)
 

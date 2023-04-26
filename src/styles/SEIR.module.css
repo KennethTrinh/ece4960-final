@@ -1,0 +1,43 @@
+.columns {
+    display : flex;
+    flex-direction: column;
+    width : 15%;
+}
+
+.row {
+    margin: auto;
+    display: flex;
+    /* margin: 0px 0px 0px 0px; top right bottom left */
+    margin-left : -5%;
+    flex-direction: row;
+
+  }
+
+.paneltitle{
+    color:#777; 
+    line-height: 17px; 
+    padding-bottom: 4px;
+    font-weight: 700;
+    margin-top: 10px;
+    margin-left: 0px;
+    font-size : 13px;
+}
+
+.paneldesc{
+    color:#888; 
+    text-align: left;
+    font-weight: 300;
+    font-size: 12px;
+}
+
+
+.slidertext{
+    color:#555; 
+    line-height: 10px; 
+    padding-bottom: 0px; 
+    padding-top: 10px;
+    font-size: 10px;
+
+    text-align: left;
+    font-weight: bold;
+}

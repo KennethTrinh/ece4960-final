@@ -13,13 +13,12 @@ function drawChart(y, checked, svgRef, width, height,
                   interventionSlider, setInterventionSlider,
                   setActiveIndex, setActiveTime,
                   lock, setLock, Pmax, setPmax) {
-  ymax = lock ? Pmax : ymax;
-  const [m, n] = [y.length, y[0].length];
 
   const svg = d3.select(svgRef.current);
 
-  const arr = y.map((row) => row.map((val, j) => val * (checked[j] ? 1 : 0))); // 110, 5
-  const y01z = d3.stack().keys(d3.range(n))(arr), // 5, 110, 2
+  ymax = lock ? Pmax : ymax;
+  
+  const [m, n] = [y.length, y[0].length],
       margin = {top: 20, right: 30, bottom: 30, left: 40},
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
@@ -48,11 +47,21 @@ function drawChart(y, checked, svgRef, width, height,
               .domain([0, tmax])
               .range([0, y.length]);
         
-  var color = d3.scaleOrdinal()
+  const color = d3.scaleOrdinal()
                 .domain(d3.range(n))
                 .range(['rgba(56, 108, 176, 1)', 'rgba(141, 160, 203, 1 )',
                   'rgba(77, 175, 74, 1)', 'rgba(240, 2, 127, 1)', 'rgba(253, 192, 134, 1)',
                 ]);
+  //   y="{(function () { 
+  //     var z = yScale( sum(y[i].slice(0,j+1), checked) ); 
+  //     return Math.min(isNaN(z) ? 0: z, height - padding.top)
+  //   })()  
+  // }"
+  const arr = y.map((row) => row.map((val, j) => val * (checked[j] ? 1 : 0))); // 110, 5
+  
+  // 5, 110, 2
+  const y01z = d3.stack().keys(d3.range(n))(arr);
+
             
   const series = svg.selectAll(".series")
     .data(y01z);
@@ -97,8 +106,18 @@ function drawChart(y, checked, svgRef, width, height,
       .delay((_, i) => i * 10)
       .attr("fill-opacity", 1)
       .attr("x", (d, i) => xScale(i))
-      .attr("y", d => yScale(d[1]))
-      .attr("height", d => yScale(d[0]) - yScale(d[1]))
+      .attr("y", d => !log ? yScale(d[1]) : ( () => {
+          const z = yScale(d[1]);
+          return Math.min( isNaN(z) ? 0 : z, innerHeight)
+      })() )
+      .attr("height", d => !log ? yScale(d[0]) - yScale(d[1]) : ( () => {
+            const top = yScaleL(d[1] + 0.0001);
+            const bottom = yScaleL(d[0] + 0.0001);
+            const z = Math.min(top - bottom, innerHeight);
+            const result = z + yScale( d[1] ) > innerHeight ? top : 
+                      Math.max(isNaN(z) ? 0 : z, 0)
+            return result > 0 ? result : 0;
+      })() )
       .attr("id", (_, i) => i)
 
     // make overlay to detect when bars are hovered over
@@ -222,7 +241,7 @@ const BarChart = ({ y, tmax, xmax, deaths,
     useEffect(() => {
         // drawChart(svg, width*0.5, height*0.5);
         if (size.width && size.height) {
-          drawChart(y, checked, svg, size.width*0.7, size.height*0.8, 
+          drawChart(y, checked, svg, size.width*0.75, size.height*0.9, 
                 tmax, xmax, deaths, 
                 total, vline, timestep, 
                 total_infected, N, ymax, 
@@ -236,8 +255,8 @@ const BarChart = ({ y, tmax, xmax, deaths,
     return (
       <div id="chart">
         { size.width && size.height ? 
-          <svg ref={svg} width={size.width*0.7} 
-                        height={size.height*0.8}/> 
+          <svg ref={svg} width={size.width*0.75} 
+                        height={size.height*0.9}/> 
                         : null }
       </div>
       );
