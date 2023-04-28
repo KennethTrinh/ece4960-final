@@ -20,7 +20,7 @@ function drawChart(y, checked, svgRef, width, height,
       margin = {top: 20, right: 30, bottom: 30, left: 40},
       innerWidth = width - margin.left - margin.right,
       innerHeight = height - margin.top - margin.bottom,
-      barWidth = innerWidth / m - 1.5
+      barWidth = innerWidth / m - 1
   
   const xScale = d3.scaleLinear()
               .domain([0, y.length])
@@ -90,7 +90,7 @@ function drawChart(y, checked, svgRef, width, height,
           .attr("height", 0)
           .attr("fill-opacity", 0), // Start with transparent bars
         update => update, // Update existing bars
-        exit => exit.transition().duration(300) // Fade out old bars
+        exit => exit.transition().duration(100) // Fade out old bars
           .attr("fill-opacity", 0)
           .remove() // Remove after fade out
       )
@@ -172,7 +172,7 @@ function drawChart(y, checked, svgRef, width, height,
       .attr("y2", innerHeight)
       .attr("stroke", "black")
       .attr("stroke-dasharray", "40,2")
-      .attr("stroke-width", 10)
+      .attr("stroke-width", 8)
       .attr("cursor", "move")
       .call(drag);
     

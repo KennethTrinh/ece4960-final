@@ -106,12 +106,12 @@ const SEIR = () => {
         InterventionTime: 100,
         OMInterventionAmt: 2 / 3,
         InterventionAmt: 1 - 2 / 3, // 1 - OMInterventionAmt
-        Time: 220,
+        Time: 210,
         Xmax: 110000,
         dt: 2,
         P_SEVERE: 0.2,
         duration: 7 * 12 * 1e10,
-        activeIndex: 110-1, //TODO: change to 100 - 1
+        activeIndex: 100-1, //TODO: change to 100 - 1
         activeTime: 200,
     });
     const [solState, setSolState] = useState(get_solution(inState.dt, inState.N, inState.I0, inState.R0,
@@ -265,7 +265,7 @@ const SEIR = () => {
                         callback={(value) => setState( (prev) => ({...prev, R0: parseFloat(value)}) ) }
                         latex={<InlineMath>R_0</InlineMath>}/>
             <Slider title={''} displayValue={(100*(inState.OMInterventionAmt)).toFixed(2) + '%'}
-                        description={'Reduction in transmission'}
+                        description={'Real Time Reproduction Number → Intervention Amount:'}
                         min={0} max={1} step={0.01} value={inState.OMInterventionAmt}
                         callback={(value) => setState( (prev) => ({...prev, OMInterventionAmt: parseFloat(value)}) ) }
                         latex={<div style={{flexDirection: 'row'}}>
@@ -276,12 +276,13 @@ const SEIR = () => {
         </div>
         <div className={styles.columns}>
             <Slider title={'Transmission Times'} displayValue={inState.D_incbation.toFixed(2) + ' days'}
+                        description={'Length of incubation period'}
                         min={0.15} max={24} step={0.0001} value={inState.D_incbation}
                         callback={(value) => setState( (prev) => ({...prev, D_incbation: parseFloat(value)}) ) }
                         latex={<InlineMath>{`T_{inc}`}</InlineMath>}
                         />
             <Slider title={''} displayValue={inState.D_infectious.toFixed(2) + ' days'}
-                        description={'Infection Duration'}
+                        description={'Duration patient is infectious'}
                         min={0} max={24} step={0.01} value={inState.D_infectious}
                         callback={(value) => setState( (prev) => ({...prev, D_infectious: parseFloat(value)}) ) }
                         latex={<InlineMath>{`T_{inf}`}</InlineMath>}
