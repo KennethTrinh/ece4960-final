@@ -283,7 +283,7 @@ const SEIR = () => {
                         />
             <Slider title={''} displayValue={inState.D_infectious.toFixed(2) + ' days'}
                         description={'Duration patient is infectious'}
-                        min={0} max={24} step={0.01} value={inState.D_infectious}
+                        min={0.01} max={24} step={0.01} value={inState.D_infectious}
                         callback={(value) => setState( (prev) => ({...prev, D_infectious: parseFloat(value)}) ) }
                         latex={<InlineMath>{`T_{inf}`}</InlineMath>}
                         />
