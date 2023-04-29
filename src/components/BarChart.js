@@ -125,7 +125,7 @@ function drawChart(y, checked, svgRef, width, height,
         .attr("height", innerHeight)
         .attr("fill", "transparent")
         .attr("id", (_, i) => `overlay-${i}`)
-        .on("mousemove", (d) => {
+        .on("mouseenter", (d) => {
           const element = d.target;
           const index = element.id.split("-")[1];
           // const rects = document.querySelectorAll(`rect[id="${index}"]`);
