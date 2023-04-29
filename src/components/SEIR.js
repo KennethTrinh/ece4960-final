@@ -289,7 +289,7 @@ const SEIR = () => {
                         />
         </div>
         <div className={styles.columns}>
-            <Slider title={'Morality Statistics'} displayValue={(inState.CFR*100).toFixed(2) + '%'}
+            <Slider title={'Mortality Statistics'} displayValue={(inState.CFR*100).toFixed(2) + '%'}
                         description={'Case Fatality Rate'}
                         min={0} max={100} step={0.01} value={inState.CFR*100}
                         callback={(value) => setState( (prev) => ({...prev, CFR: parseFloat(value)/100}) ) }
