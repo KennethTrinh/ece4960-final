@@ -131,23 +131,11 @@ function drawChart(y, checked, svgRef, width, height,
           // const rects = document.querySelectorAll(`rect[id="${index}"]`);
           // rects.forEach(rect => {rect.style.fill = "rgba(0, 0, 0, 0.2)"
           //                         rect.classList.add("hovered")});
-          d3.selectAll(`rect[id="${index}"]`)
-            .classed("hovered", true)
-            .attr("fill", "rgba(0, 0, 0, 0.2)");
-
           // console.log(index)
           // const tooltipData = y01z.map(series => series[index]);
           // console.log(tooltipData)
           setActiveIndex(index);
           setActiveTime(Math.round(indexToTime(index)));
-      })
-      .on("mouseleave", function() {
-        // Remove the fill
-        d3.selectAll(".hovered")
-          .classed("hovered", false)
-          .attr("fill", null);
-
-  
       });
   
   const drag = d3.drag()
