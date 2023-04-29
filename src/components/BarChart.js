@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import * as d3 from "d3";
 import { useWindowSize, colors } from './utils';
+import styles from '@/styles/BarChart.module.css';
 
 // https://stackoverflow.com/questions/65625086/how-to-use-d3-with-reactjs-nextjs
 
