@@ -139,7 +139,7 @@ function drawChart(y, checked, svgRef, width, height,
       })
       .on("mouseleave", function() {
         // Remove the fill
-        d3.selectAll(".hovered").style("fill", null);
+        d3.selectAll(".hovered").style("fill", null).classed("hovered", false);
       });
   
   const drag = d3.drag()
