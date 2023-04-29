@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import * as d3 from "d3";
 import { useWindowSize, colors } from './utils';
+import styles from '@/styles/BarChart.module.css';
 
 // https://stackoverflow.com/questions/65625086/how-to-use-d3-with-reactjs-nextjs
 
@@ -125,7 +126,7 @@ function drawChart(y, checked, svgRef, width, height,
         .attr("height", innerHeight)
         .attr("fill", "transparent")
         .attr("id", (_, i) => `overlay-${i}`)
-        .on("mouseover", (d) => {
+        .on("mousemove", (d) => {
           const element = d.target;
           const index = element.id.split("-")[1];
           const rects = document.querySelectorAll(`rect[id="${index}"]`);
@@ -137,7 +138,7 @@ function drawChart(y, checked, svgRef, width, height,
           setActiveIndex(index);
           setActiveTime(Math.round(indexToTime(index)));
       })
-      .on("mouseout", function() {
+      .on("mouseleave", function() {
         // Remove the fill
         d3.selectAll(".hovered").style("fill", null);
       });
